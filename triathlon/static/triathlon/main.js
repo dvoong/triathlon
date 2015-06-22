@@ -13,13 +13,13 @@ function log_scale(msg, scale, min, max){
 }
 		
 var margin = {
-    top: 100, 
+    top: 50, 
     right: 100, 
-    bottom: 100, 
-    left: 100};
+    bottom: 50, 
+    left: 50};
 
 var width = 960 - margin.left - margin.right;
-var height = 500 - margin.top - margin.bottom;		
+var height = 400 - margin.top - margin.bottom;		
 
 console.log("width: " + width);
 console.log("height: " + height);
@@ -52,12 +52,7 @@ var format_time = function(d, seconds){
 };
 var time_axis = d3.svg.axis().scale(time_scale).orient("left").ticks(10).tickFormat(function(d){return format_time(d);});
 
-for(i=0; i<10; i++){
-    var d = data[i];
-    console.log(format_time(d.time));
-}
-
-var chart = d3.select("body").append("svg").attr("class", "chart")
+var chart = d3.select("#participants-chart")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
     .append("g")
@@ -109,6 +104,42 @@ chart.selectAll(".bar")
 
 $(document).ready(function(){
 	console.log("document ready");
-	
+	var participant_input_form = $("#participant-input-form");
+	var participant_selector = $("#participant-selector");
+	// disable enter on the dropdown
+	participant_input_form.keypress(function(e){
+		console.log("keypress");
+		if(e.which == 13){
+		    e.preventDefault();
+		}
+	    });
+	console.log(participant_selector);
+	// on clicking a bar
+	chart.selectAll(".bar").on("click", function(e){
+		console.log("click");
+		console.log(d3.select(this).data()[0].name);
+		participant_selector.val(d3.select(this).data()[0].name).change();
+	    });
+	// on participant selection
+	participant_selector.change(function(e){
+		console.log("participant selected: " + participant_selector.val());
+		var response = $.ajax({
+			type: 'GET', 
+			url: '/participant/' + participant_selector.val(), 
+			success: function(msg){
+			    $("#detailed-table").html(msg);
+			    chart.selectAll(".bar.selected")
+			    .classed("selected", false);
+			    // find the bar associated to the name
+			    var selected_bar = chart.selectAll(".bar").filter(function(d){
+				    return d.name == participant_selector.val();
+				});
+			    console.log(selected_bar);
+			    // set class to selected
+			    selected_bar.classed("selected", true);
+			},
+			async: true,
+		    });
+	    });
     });
 

@@ -23,8 +23,9 @@ def plots(request):
     output = json.dumps(output)
     output = django.utils.safestring.mark_safe(output)
     participants = sorted(df['name'])
-    print participants
-    context = {'data': output, 'participants': participants}
+    table = ParticipantTable([], attrs={'id': 'detailed-table', 'class': 'paleblue'}, exclude=['id'])
+    #    table = ParticipantTable([])
+    context = {'data': output, 'participants': participants, 'table': table}
     return render(request, "triathlon/plots.html", context)
 
 def convert_time_to_seconds(time):
@@ -35,4 +36,7 @@ def convert_time_to_seconds(time):
         output = -1
     return output
 
-    
+def participant(request, participant):
+    participant = Participant.objects.get(name=participant)
+    table = ParticipantTable([participant], attrs={'id': 'detailed-table', 'class': 'paleblue'}, exclude=['id'])
+    return HttpResponse(table.as_html())
