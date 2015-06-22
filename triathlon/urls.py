@@ -19,5 +19,6 @@ from triathlon import views
 
 urlpatterns = [
     url(r'^$', views.index),
+    url(r'^plots$', views.plots),
     url(r'^admin/', include(admin.site.urls)),
 ]

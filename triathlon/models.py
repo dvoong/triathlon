@@ -1,6 +1,7 @@
 import pandas
 import django
 from django.db.models import Model, CharField, PositiveIntegerField
+from django_tables2.tables import Table
 
 class Participant(django.db.models.Model):
     position = PositiveIntegerField()
@@ -42,3 +43,8 @@ class Participant(django.db.models.Model):
         data_frame = pandas.DataFrame(x)
         data_frame.set_index('name')
         return data_frame
+
+class ParticipantTable(Table):
+    class Meta:
+        model = Participant
+        attrs = {"class": "paleblue"}

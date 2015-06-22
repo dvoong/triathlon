@@ -1,0 +1,15 @@
+<!doctype html>
+<html
+  <head>
+    {% load staticfiles %}
+    <link rel="stylesheet" href={% static "django_tables2/themes/paleblue/css/screen.css" %} />
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js" charset="utf-8"></script>
+    <script>
+      var data = {{ data }} 
+    </script>
+  </head>
+  <body>
+    <h1>Plots</h1>
+  </body>
+</html>
