@@ -7,7 +7,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js" charset="utf-8"></script>
      <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
      <script>
-       var data = {{ data }} 
+       var data = {{ data }}
      </script>
      <style>
        .bar {
@@ -25,9 +25,9 @@
        shape-rendering: crispEdges;
        }
        
-       <!--       .x.axis path { -->
-       <!--       display: none; -->
-       <!--       } -->
+       <!--        .x.axis path { -->
+       <!--        display: none; -->
+       <!--        }  -->
        
        .d3-tip {
        line-height: 1;
@@ -56,8 +56,8 @@
        margin: -1px 0 0 0;
        top: 100%;
        left: 0;
-       }    
-
+       }
+       
        .bar:hover {
        fill: green ;
        }
@@ -68,8 +68,8 @@
     <script src="{% static 'triathlon/main.js' %}"></script>
 
     <h2>Detailed Information</h2>
-    <!-- Create a table with the participants details in it -->
-    <form id="participants">
+    <!--     Create a table with the participants details in it -->
+    <form id="participants-form">
       <label>Participant</label>
       <input list="participants">
       <datalist id="participants">

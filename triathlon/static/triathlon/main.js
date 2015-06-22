@@ -29,27 +29,32 @@ var position_scale = d3.scale.linear().domain([1, last_position]).range([0, widt
 var position_axis = d3.svg.axis().scale(position_scale).orient("bottom");
 var longest_time = d3.max(data, function(d){return d.time;});
 var time_scale = d3.scale.linear().domain([6000, longest_time]).range([height, 0]);
-time_axis_format = function(d){
+var format_time = function(d, seconds){
+    if(seconds === undefined){
+	var seconds = false;
+    }
     var hours = Math.floor(d / 3600);
     var minutes = Math.floor((d - (hours * 3600)) / 60);
-    var seconds = d - hours * 3600 - (minutes * 60);
     var output = hours + ":"
     if(minutes >= 10)
 	output += minutes;
     else
 	output += "0" + minutes;
-    output += ":"
-    if(seconds >= 10)
-	output += Math.round(seconds);
-    else
-	output += "0" + Math.round(seconds);
+    if(seconds){
+	var seconds = d - hours * 3600 - (minutes * 60);
+	output += ":";
+	if(seconds >= 10)
+	    output += Math.round(seconds);
+	else
+	    output += "0" + Math.round(seconds);
+    }
     return output
 };
-var time_axis = d3.svg.axis().scale(time_scale).orient("left").ticks(10).tickFormat(time_axis_format);
+var time_axis = d3.svg.axis().scale(time_scale).orient("left").ticks(10).tickFormat(function(d){return format_time(d);});
 
 for(i=0; i<10; i++){
     var d = data[i];
-    console.log(time_axis_format(d.time));
+    console.log(format_time(d.time));
 }
 
 var chart = d3.select("body").append("svg").attr("class", "chart")
@@ -87,12 +92,12 @@ chart.selectAll(".bar")
 var tip = d3.tip()
     .attr('class', 'd3-tip')
     .offset([-10, 0])
-    .html(function(d) {
+    .html(function(d, index) {
 	    var html = "Name: " + d.name;
 	    html += "<br>";
 	    html += "Position: " + d.position;
 	    html += "<br>";
-	    html += "Time: " + time_axis_format(d.time);
+	    html += "Time: " + format_time(d.time, true);
 	    return html;
 	});
 
