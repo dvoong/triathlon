@@ -28,7 +28,8 @@ var last_position = d3.max(data, function(d){return d.position;});
 var position_scale = d3.scale.linear().domain([1, last_position]).range([0, width]);
 var position_axis = d3.svg.axis().scale(position_scale).orient("bottom");
 var longest_time = d3.max(data, function(d){return d.time;});
-var time_scale = d3.scale.linear().domain([6000, longest_time]).range([height, 0]);
+var time_scale = d3.scale.linear().domain([0, longest_time]).range([height, 0]);
+log_scale("time_scale", time_scale, 0, longest_time);
 var format_time = function(d, seconds){
     if(seconds === undefined){
 	var seconds = false;
@@ -75,14 +76,66 @@ chart.append("g")
     .attr("dy", "-1em")
     .attr("text-anchor", "end");
 
-chart.selectAll(".bar")
+var enter_selection = chart.selectAll("g.bar-container")
     .data(data)
-    .enter().append("rect")
-    .attr("class", "bar")
-    .attr("x", function(d) { return position_scale(d.position); })
-    .attr("y", function(d) { return time_scale(d.time); })
-    .attr("height", function(d) { return height - time_scale(d.time); })
+    .enter()
+    .append("g")
+    .classed(".bar-container", true)
+    .attr("x", function(d){return position_scale(d.position);})
+    .attr("y", function(d){return time_scale(d.time);})
+    .attr("height", function(d){return height - time_scale(d.time);})
     .attr("width", width / data.length);
+
+enter_selection.append("rect")
+    .classed("swim bar", true)
+    .attr("x", function(d){return position_scale(d.position);})
+    .attr("y", function(d){return time_scale(d.swim);})
+    .attr("height", function(d){return height - time_scale(d.swim);})
+    .attr("width", width / data.length);
+
+enter_selection.append("rect")
+    .classed("t1 bar", true)
+    .attr("x", function(d){return position_scale(d.position);})
+    .attr("y", function(d){return time_scale(d.swim + d.t1);})
+    .attr("height", function(d){return height - time_scale(d.t1)})
+    .attr("width", width / data.length);
+
+enter_selection.append("rect")
+    .classed("cycle bar", true)
+    .attr("x", function(d){return position_scale(d.position);})
+    .attr("y", function(d){return time_scale(d.swim + d.t1 + d.cycle);})
+    .attr("height", function(d){return height - time_scale(d.cycle)})
+    .attr("width", width / data.length);
+
+enter_selection.append("rect")
+    .classed("t2 bar", true)
+    .attr("x", function(d){return position_scale(d.position);})
+    .attr("y", function(d){return time_scale(d.swim + d.t1 + d.cycle + d.t2);})
+    .attr("height", function(d){return height - time_scale(d.t2)})
+    .attr("width", width / data.length);
+
+enter_selection.append("rect")
+    .classed("run bar", true)
+    .attr("x", function(d){return position_scale(d.position);})
+    .attr("y", function(d){return time_scale(d.swim + d.t1 + d.cycle + d.t2 + d.run);})
+    .attr("height", function(d){return height - time_scale(d.run)})
+    .attr("width", width / data.length);
+
+enter_selection.append("rect")
+    .classed("time bar", true)
+    .attr("x", function(d){return position_scale(d.position);})
+    .attr("y", function(d){return time_scale(d.time);})
+    .attr("height", function(d){return height - time_scale(d.time)})
+    .attr("width", width / data.length);
+
+// chart.selectAll(".bar")
+//     .data(data)
+//     .enter().append("rect")
+//     .attr("class", "bar")
+//     .attr("x", function(d) { return position_scale(d.position); })
+//     .attr("y", function(d) { return time_scale(d.time); })
+//     .attr("height", function(d) { return height - time_scale(d.time); })
+//     .attr("width", width / data.length);
 
 var tip = d3.tip()
     .attr('class', 'd3-tip')
@@ -128,6 +181,11 @@ $(document).ready(function(){
 			url: '/participant/' + participant_selector.val(), 
 			success: function(msg){
 			    $("#detailed-table").html(msg);
+// 			    var temp = d3.select(document.createElement("div"));
+// 			    temp.html(msg);
+// 			    var rows = temp.selectAll("tr.odd")[0];
+// 			    var thead = $("#detailed-table").select("thead");
+// 			    thead.append(rows);
 			    chart.selectAll(".bar.selected")
 			    .classed("selected", false);
 			    // find the bar associated to the name
