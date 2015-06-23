@@ -128,15 +128,6 @@ enter_selection.append("rect")
     .attr("height", function(d){return height - time_scale(d.time)})
     .attr("width", width / data.length);
 
-// chart.selectAll(".bar")
-//     .data(data)
-//     .enter().append("rect")
-//     .attr("class", "bar")
-//     .attr("x", function(d) { return position_scale(d.position); })
-//     .attr("y", function(d) { return time_scale(d.time); })
-//     .attr("height", function(d) { return height - time_scale(d.time); })
-//     .attr("width", width / data.length);
-
 var tip = d3.tip()
     .attr('class', 'd3-tip')
     .offset([-10, 0])
@@ -181,11 +172,6 @@ $(document).ready(function(){
 			url: '/participant/' + participant_selector.val(), 
 			success: function(msg){
 			    $("#detailed-table").html(msg);
-// 			    var temp = d3.select(document.createElement("div"));
-// 			    temp.html(msg);
-// 			    var rows = temp.selectAll("tr.odd")[0];
-// 			    var thead = $("#detailed-table").select("thead");
-// 			    thead.append(rows);
 			    chart.selectAll(".bar.selected")
 			    .classed("selected", false);
 			    // find the bar associated to the name
@@ -224,6 +210,82 @@ $(document).ready(function(){
 			url: "/analysis/gender/" + gender + "/category/" + category,
 			success: function(msg){
 			    console.log(msg);
+ 			    var chart_container = component_section.find("table#component-charts-container");
+			    var old_charts = chart_container.find("tr");
+			    old_charts.remove();
+			    var charts_per_row = 3;
+			    var counter = 0;
+			    for(component in msg){
+				console.log(component);
+				var data = msg[component];
+ 				if(counter % charts_per_row == 0){
+				    var row = $(document.createElement("tr"));
+				    chart_container.append(row);
+ 				}
+				var cell = $(document.createElement("td"));
+				row.append(cell);
+				var table_width = 780;
+				var td_width = table_width * 1. / charts_per_row;
+				var left_margin = 0.1 * td_width;
+				var right_margin = left_margin;
+				var width = td_width - left_margin - right_margin;
+ 				var row_height = td_width * 0.8;
+ 				var top_margin = 0.1 * row_height;
+ 				var bottom_margin = 3 * top_margin;
+ 				var height = row_height - top_margin - bottom_margin;
+				var chart = d3.selectAll(cell.toArray())
+				    .append("svg")
+				    .attr("width", td_width)
+				    .attr("height", row_height)
+				    .append("g")
+				    .attr("transform", "translate(" + left_margin + ", " + top_margin + ")");
+				var earliest_time = data.histo.min;
+				var last_time = data.histo.max;
+				var time_scale = d3.scale.linear().domain([earliest_time, last_time]).range([0, width]);
+				var time_axis = d3.svg.axis().scale(time_scale).orient("bottom");
+				var tick_values = [];
+				for(bin in data.histo.bins){
+				    tick_values.push(data.histo.bins[bin].middle);
+				}
+				time_axis.tickValues(tick_values)
+				    .tickFormat(function(d){return format_time(d);});
+				var count_scale = d3.scale.linear().domain([0, data.histo.max_count]).range([height, 0]);
+				var count_axis = d3.svg.axis().scale(count_scale).orient("left");
+				
+				chart.append("g")
+				    .attr("class", "x axis")
+				    .attr("transform", "translate(0," + height + ")")
+				    .call(time_axis)
+				    .selectAll("text")
+				    .attr("y", 0)
+				    .attr("x", 9)
+				    .attr("dy", ".35em")
+				    .attr("transform", "rotate(90)")
+				    .style("text-anchor", "start");
+
+				chart.append("g")
+				    .attr("class", "y axis")
+				    .call(count_axis)
+				    .append("text")
+				    .text(component)
+				    .attr("dy", "-1em")
+				    .attr("text-anchor", "end");
+
+				chart.selectAll(".bar")
+				    .data(data.histo.bins)
+				    .enter()
+				    .append("rect")
+				    .classed("bar", true)
+				    .attr("x", function(d){return time_scale(d.lower);})
+				    .attr("y", function(d){return count_scale(d.count);})
+				    .attr("height", function(d){return height - count_scale(d.count);})
+				    .attr("width", function(d){
+					    return time_scale(d.upper) - time_scale(d.lower);
+					});
+
+ 				counter += 1;
+				
+			    }
 			},
 		    });
 	    });

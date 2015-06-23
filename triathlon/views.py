@@ -1,3 +1,4 @@
+import collections
 import django
 from django.http import HttpResponse
 from django.shortcuts import render
@@ -60,21 +61,46 @@ def analysis(request, gender, category):
     df = Participant.data_frame()
     if gender != 'all':
         df = df[df["gender"] == {'male': 'M', 'female': 'F'}[gender]]
-    if category != 'All': # convert the form name to the db name
-        options = {} # options does the conversion
-        for db_name, form_name in Participant.category_choices:
-            options[form_name] = db_name
-        df = df[df["category"] == options[category]]
-    output = {}
+    if category != 'All': 
+        df = df[df["category"] == category]
+    output = collections.OrderedDict()
     for component in ['swim', 't1', 'cycle', 't2', 'run', 'time']:
         df[component] = df[component].map(convert_run_to_seconds)
         df = df[df[component] != -1]
+    for component in ['swim', 'cycle', 'run', 't1', 't2', 'time']:
+        min_time = df[component].min()
+        max_time = df[component].max() + 0.1
+        n_bins = 20;
+        bin_width = 1. * (max_time - min_time) / n_bins;
+        histo = {}
+        histo['min'] = min_time
+        histo['max'] = max_time
+        histo['n_bins'] = n_bins
+        histo['bin_width'] = bin_width
+        histo['bins'] = []
+        max_count = None
+        for bin_index in range(n_bins):
+            lower = min_time + bin_index * bin_width
+            upper = lower + bin_width
+            middle = (lower + upper) / 2.
+            count = len(df[(df[component] >= lower) & (df[component] < upper)])
+            if max_count == None or count > max_count:
+                max_count = count
+            histo['bins'] += [
+                {
+                    'lower': lower,
+                    'upper': upper,
+                    'middle': middle,
+                    'count': count,
+                    }
+                ]
+        histo['max_count'] = max_count
         output[component] = {
             'mean': df[component].mean(),
             'std': df[component].std(),
             'median': df[component].median(),
             '1st_quartile': df[component].quantile(0.25),
             '3rd_quartile': df[component].quantile(0.75),
-            'times': df[component].tolist()
+            'histo': histo,
             }
     return HttpResponse(json.dumps(output), content_type="application/json")

@@ -21,6 +21,6 @@ urlpatterns = [
     url(r'^$', views.index),
     url(r'^plots$', views.plots),
     url(r'^participant/(?P<participant>[\w|\W]+)', views.participant),
-    url(r'^analysis/gender/(?P<gender>\w+)/category/(?P<category>\w+)', views.analysis),
+    url(r'^analysis/gender/(?P<gender>\w+)/category/(?P<category>[\w|\W]+)', views.analysis),
     url(r'^admin/', include(admin.site.urls)),
     ]
