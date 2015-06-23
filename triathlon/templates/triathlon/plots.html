@@ -96,18 +96,51 @@
     
     <h2>Detailed Information</h2>
     <!--     Create a table with the participants details in it -->
-      <label>Participant</label>
-      <select id="participant-selector" name="participant" value="">
-	<option value="" disabled selected>Select your option</option>
-	{% for participant in participants %}<option value="{{ participant }}">{{ participant }}</option>{% endfor %}
-      </select>
+    <label>Participant</label>
+    <select id="participant-selector" name="participant" value="">
+      <option value="" disabled selected>Select your option</option>
+      {% for participant in participants %}<option value="{{ participant }}">{{ participant }}</option>{% endfor %}
+    </select>
     {% render_table table %}
-
-    <p></p>
-    <p></p>
-    <p></p>
-    <p></p>
-
+    
+    <section id="component-analysis-section">
+      <h2>Component Analysis</h2>
+      <form id="analysis-parameters-form">
+	<table id="analysis-parameters-table">
+	  <tr>
+	    <td>
+	      <label>Gender</label>
+	    </td>
+	    <td>	  
+	      <select id="gender-selector">
+		<option value="all">All</option>
+		<option value="male">Male</option>
+		<option value="female">Female</option>
+	      </select>
+	    </td>
+	  </tr>
+	  <tr>
+	    <td>
+	      <label>Category</label>
+	    </td>
+	    <td>
+	      <select id="category-selector">
+		<option value="All">All</option>
+		<option value="Senior">Senior</option>
+		<option value="Veteran">Veteran 35-49</option>
+		<option value="Veteran+">Veteran 50+</option>
+	      </select>
+	    </td>
+	  </tr>
+	  <tr>
+	    <td>
+	      <button type="submit">Submit</button>
+	    </td>
+	  </tr>
+	</table>
+      </form>
+    </section>
+    
     <script src="{% static 'triathlon/main.js' %}"></script>
   </body>
 </html>

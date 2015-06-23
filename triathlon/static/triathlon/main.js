@@ -199,5 +199,33 @@ $(document).ready(function(){
 			async: true,
 		    });
 	    });
+
+	var component_section = $("section#component-analysis-section");
+	var parameters_form = component_section.find("form#analysis-parameters-form");
+	console.log(parameters_form);
+	var parameters_table = component_section.find("table#analysis-parameters-table");
+	console.log(component_section);
+	console.log(parameters_table);
+	var gender_selector = parameters_table.find("select#gender-selector");
+	var cat_selector = parameters_table.find("select#category-selector");
+	console.log(gender_selector);
+	console.log(cat_selector);
+	var parameters_submit_btn = parameters_table.find("button");
+	console.log(parameters_submit_btn);
+	parameters_form.submit(function(e){
+		console.log("form submitted");
+		e.preventDefault();
+		var gender = gender_selector.val();
+		var category = cat_selector.val();
+		console.log(gender);
+		console.log(category);
+		var response = $.ajax({
+			type: "GET",
+			url: "/analysis/gender/" + gender + "/category/" + category,
+			success: function(msg){
+			    console.log(msg);
+			},
+		    });
+	    });
     });
 

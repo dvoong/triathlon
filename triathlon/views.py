@@ -55,3 +55,26 @@ def participant(request, participant):
     participant = Participant.objects.get(name=participant)
     table = ParticipantTable([participant], attrs={'id': 'detailed-table', 'class': 'paleblue'}, exclude=['id'])
     return HttpResponse(table.as_html())
+
+def analysis(request, gender, category):
+    df = Participant.data_frame()
+    if gender != 'all':
+        df = df[df["gender"] == {'male': 'M', 'female': 'F'}[gender]]
+    if category != 'All': # convert the form name to the db name
+        options = {} # options does the conversion
+        for db_name, form_name in Participant.category_choices:
+            options[form_name] = db_name
+        df = df[df["category"] == options[category]]
+    output = {}
+    for component in ['swim', 't1', 'cycle', 't2', 'run', 'time']:
+        df[component] = df[component].map(convert_run_to_seconds)
+        df = df[df[component] != -1]
+        output[component] = {
+            'mean': df[component].mean(),
+            'std': df[component].std(),
+            'median': df[component].median(),
+            '1st_quartile': df[component].quantile(0.25),
+            '3rd_quartile': df[component].quantile(0.75),
+            'times': df[component].tolist()
+            }
+    return HttpResponse(json.dumps(output), content_type="application/json")
